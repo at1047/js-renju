@@ -1,0 +1,50 @@
+#main {
+    margin: auto;
+}
+
+.flex-container {
+   display: flex; 
+   justify-content: center;
+
+   flex-direction: column;
+   position:relative;
+}
+
+#board {
+    width: min(80vh, 80vw);
+    height: min(80vh, 80vw); 
+    position:relative;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#buttons {
+    flex-direction: row;
+    justify-content: center;
+}
+
+@media only screen and (orientation: landscape) {
+   #main {
+    flex-direction: row;
+   }
+   #board {
+    margin-left: 5%;
+    margin-right: 5%;
+   }
+   #buttons {
+    flex-direction: column;
+   } 
+}
+
+button {
+    height: 30px;
+    width: 100px;
+    margin: 10px;
+}
+
+canvas {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    background-color: #d4913d;
+}
