@@ -1,4 +1,6 @@
-const express = require('express');
+// Declaring server variables
+
+const express = require('express')
 const http = require('http');
 const socketio = require('socket.io');
 const path = require('path');
@@ -10,15 +12,42 @@ const io = socketio(server);
 
 app.use(express.static('public'));
 
+// Declaring network variables
 
 const hostname = '0.0.0.0'
-const port = 4000;
+const port = 8080;
+
+// Declaring database variables
+
+// const MongoClient = require('mongodb').MongoClient;
+// const url = "mongodb://localhost:27017/mydb"
+
+// function addData(winner, loser) {
+
+
+
+//     MongoClient.connect(url, (err, client) => {
+//         if (err) {
+//             throw err;
+//         } else {
+//             const db = client.db('renju');
+//             console.log("Database created!");
+//             db.collection('renju').insertOne(data);
+//             console.log("Data inserted...")
+//         }
+//         db.close();
+//     });
+// }
+
 
 // Socket functions from server
 
+let numConnections;
 
 io.on('connection', socket => {
+    // if (numConnections >= 2) {
 
+    // }
     socket.emit('message', 'Welcome to Renju Game');
     socket.emit('initGame');
     
@@ -42,6 +71,8 @@ io.on('connection', socket => {
             io.to(ply['socket.id']).emit('clientTurn', ply['clientTurn']);
         }
         console.log(players);
+        numConnections = Object.keys(io.sockets.sockets).length;
+        console.log("Number of players: " + numConnections);
     })
     
     socket.emit('dict', dict);
@@ -59,6 +90,7 @@ io.on('connection', socket => {
             if (newDictAndState[1] == 1) {
                 socket.emit('gameState', '1');
                 socket.broadcast.emit('gameState', '0');
+                // addData(info[userName])
             }
         }
     });
@@ -93,6 +125,7 @@ io.on('connection', socket => {
         players.splice(index, 1);
         players = findClientTurn(players);
         for (let i = 0; i <= players.length; i ++) {
+            ply = players[i];
             io.to(ply['socket.id']).emit('clientTurn', ply['clientTurn']);
         }
         console.log(players);
@@ -100,10 +133,7 @@ io.on('connection', socket => {
     });
 });
 
-
-
-// Socket functions from Client
-
+// Declaring game variables
 
 const boardSize = 19;
 const whitePiece = "#FFFFFF"
@@ -208,22 +238,5 @@ function game(x, y) {
 }
 
 dict = initBoard()
-
-// app.use(logger)
-
-// app.get('/', (req, res) => {
-//     res.sendFile(path.join(__dirname+'/index.html')); 
-//     console.log('index page')
-// });
-
-// app.get('/renju', (req, res) => {
-//     res.sendFile(path.join(__dirname+'/renju.html')); 
-//     console.log('renju page')
-// });
-
-// function logger(req, res, next) {
-//     console.log('Log');
-//     next();
-// }
 
 server.listen(port, hostname, () => console.log('server running on port ' + port)); 

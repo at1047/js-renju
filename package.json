@@ -1,7 +1,7 @@
 {
   "name": "renju-app-nodejs",
   "version": "1.0.0",
-  "description": "",
+  "description": "Nodejs on Docker",
   "main": "index.js",
   "scripts": {
     "devStart": "nodemon server.js",
@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "express": "^4.17.1",
+    "mongodb": "^3.6.0",
     "socket.io": "^2.3.0"
   }
 }
