@@ -23,6 +23,9 @@ let dict;
 
 // Socket functions from server
 
+socket.on('initGame', () => {
+    getName();
+})
 
 socket.on('message', message => {
     console.log(message);
@@ -49,6 +52,12 @@ socket.on('alert', msg => {
 })
 
 // Socket functions from Client
+
+function getName() {
+    userName = prompt("What is your name?");
+    socket.emit('userName', userName);
+}
+
 
 function restart() {
     socket.emit('restart');

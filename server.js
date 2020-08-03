@@ -12,40 +12,43 @@ app.use(express.static('public'));
 
 
 const hostname = '0.0.0.0'
-const port = 8080;
-
-
+const port = 4000;
 
 // Socket functions from server
 
+
 io.on('connection', socket => {
-    socket.broadcast.emit('message', socket.id + ' has joined');
+
     socket.emit('message', 'Welcome to Renju Game');
-    console.log('New WS Connection...' + socket.id);
+    socket.emit('initGame');
     
+    let info; 
 
+    socket.on('userName', name => {
+        const userName = name;
+        socket.broadcast.emit('message', userName + ' has joined');
+        
+        info = {
+            'socket.id': socket.id, 
+            'userName': userName,
+            'clientTurn': undefined
+        }
+        players.push(info);
+        players = findClientTurn(players);
+        console.log('New WS Connection: ' + userName);
+        let ply;
+        for (let i = 0; i < players.length; i ++) {
+            ply = players[i]
+            io.to(ply['socket.id']).emit('clientTurn', ply['clientTurn']);
+        }
+        console.log(players);
+    })
     
-    let clientTurn;
-    if (!players.includes(socket.id)) {
-        players.push(socket.id);
-    }
-
-    console.log(players);
-
-    clientTurn = players.indexOf(socket.id)
-    for (let i = 0; i < players.length; i ++) {
-        io.to(players[i]).emit('clientTurn', i);
-    }
-
-    // socket.emit('clientTurn', clientTurn);
     socket.emit('dict', dict);
-    
-
-    
 
     socket.on('clientMove', move => {
         const turnBin = (turn == 1)? 0 : 1;
-        if (socket.id == players[turnBin]) {
+        if (socket.id == players[turnBin]['socket.id']) {
             console.log(turnBin + move);
             let x = move[0]
             let y = move[1]
@@ -61,30 +64,39 @@ io.on('connection', socket => {
     });
 
     socket.on('hurryUp', () => {
-        console.log(socket.id + " said hurry up!");
-        socket.broadcast.emit('alert', 'Please hurry up');
+        console.log(info['userName'] + " said hurry up!");
+        socket.broadcast.emit('alert', info['userName'] + ' said please hurry up');
     })
 
     socket.on('restart', () => {
-        console.log(socket.id + " requested to restart");
+        console.log(info['userName'] + " requested to restart");
         restart();
         io.emit('dict', dict);
     });
 
     socket.on('undo', () => {
-        console.log(socket.id + " requested to undo");
+        console.log(info['userName'] + " requested to undo");
         undo();
         io.emit('dict', dict);
     });
 
     socket.once('disconnect', () => {
-        socket.broadcast.emit('message', socket.id + 'A user has left the game');
-        players.splice(players.indexOf(socket.id), 1);
-        console.log(socket.id + " has left the game.")
-        console.log(players)
-        for (let i = 0; i <= players.length; i ++) {
-            io.to(players[i]).emit('clientTurn', i);
+        socket.broadcast.emit('message', info['userName'] + ' has left the game');
+        
+        let index;
+        for (let i = 0; i < players.length; i ++) {
+            ply = players[i];
+            if (ply['socket.id'] == info['socket.id']) {
+                index = i;
+            }
         }
+        players.splice(index, 1);
+        players = findClientTurn(players);
+        for (let i = 0; i <= players.length; i ++) {
+            io.to(ply['socket.id']).emit('clientTurn', ply['clientTurn']);
+        }
+        console.log(players);
+        
     });
 });
 
@@ -109,7 +121,13 @@ function restart() {
     dict = initBoard();
 }
 
+function findClientTurn(arr) {
+    for (let i = 0; i < arr.length; i ++) {
+        arr[i]['clientTurn'] = i;
+    }
 
+    return arr
+}
 
 function initBoard() {
     let dict = {};
