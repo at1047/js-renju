@@ -51,6 +51,10 @@ socket.on('alert', msg => {
     alert(msg);
 })
 
+socket.on('reject', () => {
+    window.location.href = '/';
+})
+
 // Socket functions from Client
 
 function getName() {
@@ -69,6 +73,10 @@ function undo() {
 
 function hurryUp() {
     socket.emit('hurryUp');
+}
+
+function emitMove([x,y]) {
+    socket.emit('clientMove', [x,y]);
 }
 
 // Game functions
@@ -133,7 +141,6 @@ function getCursorPosition(canvas, event) {
 
 
 function hover(x,y) {
-    // const currentTurn = (turn == 1)? blackPiece : whitePiece;
 
     if (dict[x][y] == 0 && !(x == currentHover['x'] && y == currentHover['y'])) {
         redrawEverything(dict);
@@ -145,7 +152,7 @@ function hover(x,y) {
 
 canvas.addEventListener('mousedown', (e) => {
     [x, y] = getCursorPosition(canvas, e);
-    socket.emit('clientMove', [x,y]);
+    emitMove([x,y]);
 })
 
 let currentHover = {'x': undefined, 'y': undefined};

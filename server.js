@@ -14,7 +14,7 @@ app.use(express.static('public'));
 
 // Declaring network variables
 
-const hostname = '0.0.0.0'
+const hostname = '0.0.0.0';
 const port = 8080;
 
 // Declaring database variables
@@ -42,95 +42,109 @@ const port = 8080;
 
 // Socket functions from server
 
-let numConnections;
+let numConnections = 0;
 
 io.on('connection', socket => {
-    // if (numConnections >= 2) {
-
+    // if (socket.handshake.url != '/renju.html') {
+    //     socket.disconnect();
+    //     console.log("Not renju page")
+    //     return;
     // }
-    socket.emit('message', 'Welcome to Renju Game');
-    socket.emit('initGame');
-    
-    let info; 
 
-    socket.on('userName', name => {
-        const userName = name;
-        socket.broadcast.emit('message', userName + ' has joined');
-        
-        info = {
-            'socket.id': socket.id, 
-            'userName': userName,
-            'clientTurn': undefined
-        }
-        players.push(info);
-        players = findClientTurn(players);
-        console.log('New WS Connection: ' + userName);
-        let ply;
-        for (let i = 0; i < players.length; i ++) {
-            ply = players[i]
-            io.to(ply['socket.id']).emit('clientTurn', ply['clientTurn']);
-        }
-        console.log(players);
-        numConnections = Object.keys(io.sockets.sockets).length;
-        console.log("Number of players: " + numConnections);
-    })
-    
-    socket.emit('dict', dict);
+    if (numConnections >= 2) {
+        socket.emit('reject');
+    } else {
+        socket.emit('message', 'Welcome to Renju Game');
+        socket.emit('initGame');
 
-    socket.on('clientMove', move => {
-        const turnBin = (turn == 1)? 0 : 1;
-        if (socket.id == players[turnBin]['socket.id']) {
-            console.log(turnBin + move);
-            let x = move[0]
-            let y = move[1]
-            // console.log("Move on x: " + x + ", y: " + y);
-            newDictAndState = game(x,y)
-            io.emit('dict', newDictAndState[0]);
+        let info; 
 
-            if (newDictAndState[1] == 1) {
-                socket.emit('gameState', '1');
-                socket.broadcast.emit('gameState', '0');
-                // addData(info[userName])
+        socket.on('userName', name => {
+            const userName = name;
+            socket.broadcast.emit('message', userName + ' has joined');
+            
+            info = {
+                'socket.id': socket.id, 
+                'userName': userName,
+                'clientTurn': undefined
             }
-        }
-    });
-
-    socket.on('hurryUp', () => {
-        console.log(info['userName'] + " said hurry up!");
-        socket.broadcast.emit('alert', info['userName'] + ' said please hurry up');
-    })
-
-    socket.on('restart', () => {
-        console.log(info['userName'] + " requested to restart");
-        restart();
-        io.emit('dict', dict);
-    });
-
-    socket.on('undo', () => {
-        console.log(info['userName'] + " requested to undo");
-        undo();
-        io.emit('dict', dict);
-    });
-
-    socket.once('disconnect', () => {
-        socket.broadcast.emit('message', info['userName'] + ' has left the game');
-        
-        let index;
-        for (let i = 0; i < players.length; i ++) {
-            ply = players[i];
-            if (ply['socket.id'] == info['socket.id']) {
-                index = i;
+            players.push(info);
+            players = findClientTurn(players);
+            console.log('New WS Connection: ' + userName);
+            let ply;
+            for (let i = 0; i < players.length; i ++) {
+                ply = players[i]
+                io.to(ply['socket.id']).emit('clientTurn', ply['clientTurn']);
             }
-        }
-        players.splice(index, 1);
-        players = findClientTurn(players);
-        for (let i = 0; i <= players.length; i ++) {
-            ply = players[i];
-            io.to(ply['socket.id']).emit('clientTurn', ply['clientTurn']);
-        }
-        console.log(players);
+            console.log(players);
+            numConnections = Object.keys(io.sockets.sockets).length;
+            console.log("Number of players: " + numConnections);
+        })
         
-    });
+        socket.emit('dict', dict);
+
+        socket.on('clientMove', move => {
+            const turnBin = (turn == 1)? 0 : 1;
+            if (socket.id == players[turnBin]['socket.id']) {
+                // console.log(turnBin + move);
+                let x = move[0]
+                let y = move[1]
+                // console.log("Move on x: " + x + ", y: " + y);
+                newDictAndState = game(x,y,info['userName'])
+                io.emit('dict', newDictAndState[0]);
+
+                if (newDictAndState[1] == 1) {
+                    socket.emit('gameState', '1');
+                    socket.broadcast.emit('gameState', '0');
+                    // addData(info[userName])
+                }
+            }
+        });
+
+        socket.on('hurryUp', () => {
+            console.log(info['userName'] + " said hurry up!");
+            socket.broadcast.emit('alert', info['userName'] + ' said please hurry up');
+        });
+
+        socket.on('restart', () => {
+            console.log(info['userName'] + " requested to restart");
+            restart(info['userName']);
+            io.emit('dict', dict);
+        });
+
+        socket.on('undo', () => {
+            console.log(info['userName'] + " requested to undo");
+            undo(info['userName']);
+            io.emit('dict', dict);
+        });
+
+        socket.once('disconnect', () => {
+            socket.broadcast.emit('message', info['userName'] + ' has left the game');
+            console.log(info['userName'] + ' has left the game.')
+            
+            let index;
+            for (let i = 0; i < players.length; i ++) {
+                ply = players[i];
+                if (ply['socket.id'] == info['socket.id']) {
+                    index = i;
+                }
+            }
+            
+            players.splice(index, 1);
+            players = findClientTurn(players);
+            
+            if (players.length != 0) {
+                for (let i = 0; i < players.length; i ++) {
+                    ply = players[i];
+                    io.to(ply['socket.id']).emit('clientTurn', ply['clientTurn']);
+                }
+            }
+            console.log(players);
+            numConnections = Object.keys(io.sockets.sockets).length; 
+        });
+
+    };
+   
 });
 
 // Declaring game variables
@@ -143,12 +157,20 @@ let players = [];
 let turn = 1;
 let state = 0;
 const directions = [[0,1], [1,0], [1,1], [1,-1]]; // Vertical, Horizontal, Up right diag, up left diag
+let playLog = [];
 
-function restart() {
+function restart(userName) {
     playOrder = [];
     turn = 1;
     state = 0;
     dict = initBoard();
+    playLog.push({
+        'player': userName,
+        'move': 'Reset',
+        'x': undefined,
+        'y': undefined
+    });
+    console.log(playLog);
 }
 
 function findClientTurn(arr) {
@@ -170,17 +192,32 @@ function initBoard() {
     return dict;
 }
 
-function undo() {
-    lastPiece = playOrder.pop();
+function undo(userName) {
+    lastPiece = playLog.pop();
     rmPiece(lastPiece['x'], lastPiece['y']);
     turn *= -1;
+    playLog.push(lastPiece);
+    playLog.push({
+        'player': userName, 
+        'move': 'Remove',
+        'x': lastPiece['x'],
+        'y': lastPiece['y']
+    });
+    console.log(playLog);
 }
 
-function addPiece(x, y, color) {
+function addPiece(x, y, color, userName) {
     dict[x][y] = (color == blackPiece)? 1 : 2; 
     colorString = (color == blackPiece)? "Black Piece" : "White Piece";
-    console.log(colorString + " added at " + x + ", " + y);
-    playOrder.push({'x': x, 'y': y});
+    let newLog = colorString + " added at " + x + ", " + y
+    console.log(newLog);
+    playLog.push({
+        'player': userName,
+        'move': 'Add',
+        'x': x,
+        'y': y
+    })
+    console.log(playLog);
 }
 
 function rmPiece(x, y) {
@@ -222,19 +259,19 @@ function checkLength(x, y) {
     return infoObj; 
 }
 
-function game(x, y) {
+function game(x, y, userName) {
     const currentTurn = (turn == 1)? blackPiece : whitePiece;
     if (dict[x][y] == 0) {
-        addPiece(x, y, currentTurn);
+        addPiece(x, y, currentTurn, userName);
         
         infoObj = checkLength(x, y);
         if (infoObj["win"] != -1) {
             state = 1
         }
         turn *= -1;
-        return [dict, state];
+        
     }
-    
+    return [dict, state]; 
 }
 
 dict = initBoard()
