@@ -85,7 +85,7 @@ io.on('connection', socket => {
 
         socket.on('clientMove', move => {
             const turnBin = (turn == 1)? 0 : 1;
-            if (socket.id == players[turnBin]['socket.id']) {
+            if (info['userName'] == players[turnBin]['userName']) {
                 // console.log(turnBin + move);
                 let x = move[0]
                 let y = move[1]
@@ -193,17 +193,21 @@ function initBoard() {
 }
 
 function undo(userName) {
-    lastPiece = playLog.pop();
-    rmPiece(lastPiece['x'], lastPiece['y']);
-    turn *= -1;
-    playLog.push(lastPiece);
-    playLog.push({
-        'player': userName, 
-        'move': 'Remove',
-        'x': lastPiece['x'],
-        'y': lastPiece['y']
-    });
-    console.log(playLog);
+    if (playOrder.length > 0) {
+        currentPlayer = playOrder[playOrder.length - 1]['userName']
+        if (currentPlayer == userName) {
+            lastPiece = playOrder.pop()
+            rmPiece(lastPiece['x'], lastPiece['y']);
+            turn *= -1;
+            playLog.push({
+                'player': userName, 
+                'move': 'Remove',
+                'x': lastPiece['x'],
+                'y': lastPiece['y']
+            });
+            console.log(playLog);
+        }
+    }
 }
 
 function addPiece(x, y, color, userName) {
@@ -214,6 +218,12 @@ function addPiece(x, y, color, userName) {
     playLog.push({
         'player': userName,
         'move': 'Add',
+        'x': x,
+        'y': y
+    })
+    playOrder.push({
+        'color': colorString,
+        'userName': userName,
         'x': x,
         'y': y
     })
