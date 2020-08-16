@@ -4,40 +4,44 @@ const express = require('express')
 const http = require('http');
 const socketio = require('socket.io');
 const path = require('path');
-var fs = require('fs');
+const fs = require('fs');
+//const Sequelize = require('sequelize');
 
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
+//try {
+    //const sequelize = new Sequelize('postgres://appseed:appseed@localhost:5432/test');
+//} catch (e) {
+    //console.log("Cant connect to server")
+//}
 
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Declaring network variables
 
 const hostname = '0.0.0.0';
 const port = 8080;
 
 // Declaring database variables
 
-// const MongoClient = require('mongodb').MongoClient;
-// const url = "mongodb://localhost:27017/mydb"
-
-// function addData(winner, loser) {
-
-
-
-//     MongoClient.connect(url, (err, client) => {
-//         if (err) {
-//             throw err;
-//         } else {
-//             const db = client.db('renju');
-//             console.log("Database created!");
-//             db.collection('renju').insertOne(data);
-//             console.log("Data inserted...")
-//         }
-//         db.close();
-//     });
-// }
+//try {
+    //sequelize.authenticate();
+    //console.log('Connection has been established successfully.');
+    //const User = sequelize.define('user', {
+        //firstname: {
+            //type: Sequelize.STRING,
+            //allowNull: false
+        //},
+        //lastName: {
+            //type: Sequelize.STRING,
+        //}
+        
+    //}, {
+        ////options
+    //})
+//} catch (error) {
+    //console.error('Unable to connect to the database:', error);
+//}
 
 
 // Socket functions from server
@@ -45,127 +49,98 @@ const port = 8080;
 let numConnections = 0;
 
 io.on('connection', socket => {
-    // if (socket.handshake.url != '/renju.html') {
-    //     socket.disconnect();
-    //     console.log("Not renju page")
-    //     return;
-    // }
-
     if (numConnections >= 2) {
         socket.emit('reject');
     } else {
         socket.emit('message', 'Welcome to Renju Game');
         socket.emit('initGame');
-
-        let info; 
+        info = {
+            'socket.id': socket.id, 
+            'userName': undefined,
+        }
+        const myTurn = addNewUser(info);
+        numConnections = Object.keys(io.sockets.sockets).length;
+        console.log('New player initialised. Current players: ' + numConnections);
+        socket.emit('dict', dict);
+        const clientTurn = (myTurn == "Black")? "#000000" : "#FFFFFF";
+        socket.emit('clientTurn', clientTurn);
 
         socket.on('userName', name => {
-            const userName = name;
-            socket.broadcast.emit('message', userName + ' has joined');
-            
-            info = {
-                'socket.id': socket.id, 
-                'userName': userName,
-                'clientTurn': undefined
-            }
-            players.push(info);
-            players = findClientTurn(players);
-            console.log('New WS Connection: ' + userName);
-            let ply;
-            for (let i = 0; i < players.length; i ++) {
-                ply = players[i]
-                io.to(ply['socket.id']).emit('clientTurn', ply['clientTurn']);
-            }
+            players[myTurn]['userName'] = name;
+            console.log('Name added: ' + name);
             console.log(players);
-            numConnections = Object.keys(io.sockets.sockets).length;
-            console.log("Number of players: " + numConnections);
-        })
-        
-        socket.emit('dict', dict);
+        });
 
         socket.on('clientMove', move => {
-            const turnBin = (turn == 1)? 0 : 1;
-            if (info['userName'] == players[turnBin]['userName']) {
-                // console.log(turnBin + move);
-                let x = move[0]
-                let y = move[1]
-                // console.log("Move on x: " + x + ", y: " + y);
-                newDictAndState = game(x,y,info['userName'])
+            if (myTurn == turn) {
+                newDictAndState = game(move[0], move[1], clientTurn, myTurn);
                 io.emit('dict', newDictAndState[0]);
-
                 if (newDictAndState[1] == 1) {
                     socket.emit('gameState', '1');
                     socket.broadcast.emit('gameState', '0');
-                    // addData(info[userName])
                 }
             }
         });
 
         socket.on('hurryUp', () => {
-            console.log(info['userName'] + " said hurry up!");
+            console.log(players[myTurn]['userName'] + " said hurry up!");
             socket.broadcast.emit('alert', info['userName'] + ' said please hurry up');
         });
 
         socket.on('restart', () => {
-            console.log(info['userName'] + " requested to restart");
-            restart(info['userName']);
+            console.log(players[myTurn]['userName'] + " requested to restart");
+            restart(myTurn);
             io.emit('dict', dict);
         });
 
         socket.on('undo', () => {
-            console.log(info['userName'] + " requested to undo");
-            undo(info['userName']);
+            console.log(players[myTurn]['userName'] + " requested to undo");
+            undo(myTurn);
             io.emit('dict', dict);
         });
 
         socket.once('disconnect', () => {
-            socket.broadcast.emit('message', info['userName'] + ' has left the game');
-            console.log(info['userName'] + ' has left the game.')
-            
-            let index;
-            for (let i = 0; i < players.length; i ++) {
-                ply = players[i];
-                if (ply['socket.id'] == info['socket.id']) {
-                    index = i;
-                }
+            players[myTurn] = {
+                "socket.id": undefined,
+                "userName": undefined
             }
-            
-            players.splice(index, 1);
-            players = findClientTurn(players);
-            
-            if (players.length != 0) {
-                for (let i = 0; i < players.length; i ++) {
-                    ply = players[i];
-                    io.to(ply['socket.id']).emit('clientTurn', ply['clientTurn']);
-                }
-            }
+            //socket.broadcast.emit('message', players[myTurn]['userName'] + ' has left the game');
+            //console.log(players[myTurn]['userName'] + ' has left the game.')
             console.log(players);
             numConnections = Object.keys(io.sockets.sockets).length; 
         });
-
     };
-   
 });
 
 // Declaring game variables
 
 const boardSize = 19;
-const whitePiece = "#FFFFFF"
-const blackPiece = "#000000"
 let playOrder = [];
-let players = [];
-let turn = 1;
-let state = 0;
-const directions = [[0,1], [1,0], [1,1], [1,-1]]; // Vertical, Horizontal, Up right diag, up left diag
 let playLog = [];
+let players = {
+    "Black": {
+        "socket.id": undefined,
+        "userName": undefined
+    },
+    "White": {
+        "socket.id": undefined,
+        "userName": undefined
+    }
+};
+let turn = "Black";
+let state = 0;
+const directions = [[0,1], [1,0], [1,1], [1,-1]];
+dict = initBoard()
 
-function restart(userName) {
+// Game Functions
+
+function restart(myTurn) {
     playOrder = [];
-    turn = 1;
+    turn = "Black";
     state = 0;
     dict = initBoard();
     playLog.push({
-        'player': userName,
+        'player': players[myTurn]['userName'],
         'move': 'Reset',
         'x': undefined,
         'y': undefined
@@ -173,12 +148,16 @@ function restart(userName) {
     console.log(playLog);
 }
 
-function findClientTurn(arr) {
-    for (let i = 0; i < arr.length; i ++) {
-        arr[i]['clientTurn'] = i;
+function addNewUser(playerInfo) {
+    if (players["Black"]['socket.id'] == undefined && players["White"]["socket.id"] == undefined) {
+        turn = "Black"
+    } else if (players["Black"] == undefined) {
+        turn = "Black"
+    } else {
+        turn = "White"
     }
-
-    return arr
+    players[turn] = playerInfo
+    return turn
 }
 
 function initBoard() {
@@ -192,47 +171,39 @@ function initBoard() {
     return dict;
 }
 
-function undo(userName) {
+function undo(myTurn) {
     if (playOrder.length > 0) {
-        currentPlayer = playOrder[playOrder.length - 1]['userName']
-        if (currentPlayer == userName) {
+        console.log(players);
+        console.log(myTurn);
+        console.log(players[myTurn]);
+        if (players[myTurn]['userName'] == playOrder[playOrder.length - 1]['userName']) {
             lastPiece = playOrder.pop()
-            rmPiece(lastPiece['x'], lastPiece['y']);
-            turn *= -1;
+            dict[lastPiece['x']][lastPiece['y']] = 0;
             playLog.push({
-                'player': userName, 
+                'player': players[myTurn]['userName'], 
                 'move': 'Remove',
                 'x': lastPiece['x'],
                 'y': lastPiece['y']
             });
-            console.log(playLog);
+            nextTurn();
         }
     }
 }
 
-function addPiece(x, y, color, userName) {
-    dict[x][y] = (color == blackPiece)? 1 : 2; 
-    colorString = (color == blackPiece)? "Black Piece" : "White Piece";
-    let newLog = colorString + " added at " + x + ", " + y
-    console.log(newLog);
+function addPiece(x, y, clientTurn, myTurn) {
+    dict[x][y] = clientTurn 
     playLog.push({
-        'player': userName,
+        'player': players[myTurn]['userName'],
         'move': 'Add',
         'x': x,
         'y': y
     })
     playOrder.push({
-        'color': colorString,
-        'userName': userName,
+        'color': myTurn,
+        'userName': players[myTurn]['userName'],
         'x': x,
         'y': y
     })
-    console.log(playLog);
-}
-
-function rmPiece(x, y) {
-    dict[x][y] = 0;
-    console.log(colorString + " removed at " + x + ", " + y);
 }
 
 function checkLength(x, y) {
@@ -269,21 +240,21 @@ function checkLength(x, y) {
     return infoObj; 
 }
 
-function game(x, y, userName) {
-    const currentTurn = (turn == 1)? blackPiece : whitePiece;
+function game(x, y, clientTurn, myTurn) {
     if (dict[x][y] == 0) {
-        addPiece(x, y, currentTurn, userName);
-        
+        addPiece(x, y, clientTurn, myTurn);
         infoObj = checkLength(x, y);
         if (infoObj["win"] != -1) {
             state = 1
         }
-        turn *= -1;
-        
+       nextTurn() 
     }
+    console.log(playOrder)
     return [dict, state]; 
 }
 
-dict = initBoard()
+function nextTurn() {
+    turn = (turn == "Black")? "White" : "Black" 
+}
 
 server.listen(port, hostname, () => console.log('server running on port ' + port)); 

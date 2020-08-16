@@ -1,10 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Node Test</title>
+	<link rel="stylesheet" href="css/style.css" />
+	<title>Renju App</title>
 </head>
 <body>
-    <h1>Node Test Website</h1>
-    <script src="/js/index.js"></script>
+    <div id="main" class="flex-container">
+        <div id="board">
+            <canvas></canvas>
+        </div>
+        <div id="sidebar">
+            <table id="chat">
+                <tr class="message">
+                    <td><p class="text">Welcome to Renju</p></td>
+                </tr>
+                <tr id="textbox">
+                    <td id="form"><input class="text" type="text"></input></td>
+                    <td id="submit"><input class="text" type="submit"></input></td>
+                </tr>
+            </table>
+            <div id="buttons" class="flex-container">
+                <button class="text" id="restart"></button>
+                <button class="text" id="undo"></button>
+                <button class="text" id="hurryUp"></button>
+                <button></button>
+                <button></button>
+                <button></button>
+            </div>
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>	
+	<script src="js/renju.js"></script>
 </body>
 </html>

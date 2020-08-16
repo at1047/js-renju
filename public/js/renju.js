@@ -1,3 +1,5 @@
+// Declaring variables
+
 var canvas = document.querySelector('canvas');
 const socket = io();
 
@@ -14,10 +16,6 @@ var dim = canvas.width;
 var gridSpacing = dim/boardSize;
 var padding = gridSpacing/2;
 
-const whitePiece = "#FFFFFF"
-const blackPiece = "#000000"
-
-
 let clientTurn;
 let dict;
 
@@ -32,13 +30,15 @@ socket.on('message', message => {
 })
 
 socket.on('dict', serverDict => {
-    dict = serverDict
+    dict = serverDict;
+    console.log(dict);
     redrawEverything(dict);
 })
 
 socket.on('clientTurn', turn => {
-    console.log("Your turn ID is: " + turn)
-    clientTurn = (turn == 0)? blackPiece : whitePiece;
+    console.log("Your turn ID is: " + turn);
+    clientTurn = turn;
+    console.log(clientTurn);
 })
 
 socket.on('gameState', state => {
@@ -107,20 +107,15 @@ function drawPiece(x, y, color, alpha) {
     ctx.stroke();
 }
 
-
 function drawAllPieces(dict) {
     for (x in dict) {
-        for (y in dict[x]) {2
-            if (dict[x][y] == 1) {
-                drawPiece(x, y, blackPiece, "FF");
-            } else if (dict[x][y] == 2) {
-                drawPiece(x, y, whitePiece, "FF");
+        for (y in dict[x]) {
+            if (dict[x][y] != 0) {
+                drawPiece(x, y, dict[x][y], "");
             }
         }
     }   
 }
-
-
 
 function redrawEverything(dict) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -136,9 +131,6 @@ function getCursorPosition(canvas, event) {
     yGrid = Math.max(Math.floor(y / gridSpacing), 0);
     return [xGrid, yGrid]
 }
-
-
-
 
 function hover(x,y) {
 
