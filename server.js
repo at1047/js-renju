@@ -68,6 +68,7 @@ io.on('connection', socket => {
             players[myTurn]['userName'] = name;
             console.log('Name added: ' + name);
             console.log(players);
+            io.emit('chatMessage', name + " has connected");
         });
 
         socket.on('clientMove', move => {
@@ -111,6 +112,7 @@ io.on('connection', socket => {
         })
 
         socket.once('disconnect', () => {
+            io.emit('chatMessage', players[myTurn]['userName'] + " has disconnected");
             players[myTurn] = {
                 "socket.id": undefined,
                 "userName": undefined

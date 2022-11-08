@@ -10,9 +10,10 @@ html {
 }
 
 h1 {
-    font-family: 'Avenir Black';
+    font-weight: bold;
     color: #bfbfbf;
     text-align: center;
+    font-size: 30px;
     margin: 70px auto 50px;
 }
 
@@ -98,7 +99,7 @@ canvas {
 }
 
 .text {
-    font-family: 'Avenir';
+    font-family: 'Roboto Mono';
 }
 
 
@@ -131,9 +132,16 @@ canvas {
     flex-wrap: wrap;
 }
 
+@media only screen and (min-width: 768px) {
+    h1 {
+        font-size: 40px;
+    }
+}
+
 @media only screen and (min-width: 1000px) {
     h1 {
-        margin: 20px auto 50px;
+        margin: 20px auto 70px;
+        font-size: 60px;
     }
 
     .main {
@@ -180,27 +188,33 @@ canvas {
     ul {
         overflow: auto;
         flex-direction: column;
+        padding-top: 33.45px;
+
+    }
+
+    lh {
+        position: absolute;
+        z-index: 99;
+        background: #524e49;
+        display:inline-block;
+        margin-top: -33.45px;
+        width: 250px;
+        height: 33.45px;
+        font-weight: medium;
+        font-size: 20px;
+        text-align: center;
     }
 
     li {
-        padding: 5px 10px;
+        position: relative;
+        padding: 3px 10px;
         display:block;
         width: 100%;
     }
 
     #messages > li:nth-child(odd) { background: #3C3A37; }
 
-    lh {
-        position: absolute;
-        padding: 5px 10px;
-        background: #524e49;
-        display:block;
-        width: 250px;
-        height: 33.45px;
-        font-family: "Avenir Black";
-        font-size: 20px;
-        text-align: center;
-    }
+
 
     span {
         display: inline-block;

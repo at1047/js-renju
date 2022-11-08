@@ -75,6 +75,9 @@ socket.on('chatMessage', function(msg) {
 
 function getName() {
     userName = prompt("What is your name?");
+    if (userName == "") {
+        userName = "No Name";
+    }
     socket.emit('userName', userName);
 }
 
