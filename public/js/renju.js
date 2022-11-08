@@ -11,7 +11,9 @@ var ctx = canvas.getContext('2d');
 const boardSize = 19;
 
 canvas.width  = canvas.offsetWidth;
-canvas.height = canvas.offsetHeight;
+canvas.height = canvas.width;
+console.log(canvas.width)
+console.log(canvas.height)
 var dim = canvas.width;
 var gridSpacing = dim/boardSize;
 var padding = gridSpacing/2;

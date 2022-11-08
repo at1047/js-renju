@@ -18,7 +18,6 @@ const io = socketio(server);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-
 const hostname = '0.0.0.0';
 const port = 8080;
 

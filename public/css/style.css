@@ -1,90 +1,206 @@
+* {
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
 html {
-    background-color: #870333;
+    background-color: #302E2B;
+}
+
+h1 {
+    font-family: 'Avenir Black';
+    color: #bfbfbf;
+    text-align: center;
+    margin: 70px auto 50px;
 }
 
 button {
-    height: 30px;
-    width: 30%;
-    margin-bottom: 5%
+    border-radius: 0 !important;
 }
+
+.main {
+    width: 100%
+}
+
+.square {
+    /* width: 60%;
+    height: 0;
+    padding-bottom: 60%; */
+    width: 95vw;
+    height: 95vw;
+    margin: 0px auto;
+}
+
+
+/* #board {
+    
+    background-color: red;
+} */
 
 canvas {
-    height: 100%;
-    width: 100%;
+    width: 95%;
+
     position: absolute;
-    background-color: #d4913d;
+    background-color: #9B7335;
+    border-radius: 10px;
 }
 
-.text {
-    font-family: Helvetica;
+.grid {
+    width: 95vw;
+    display: grid;
+    margin: 30px auto;
 }
 
-#form {
-    width: 75%;
-    position: relative;
-}
-
-#submit {
-    width: 25%;
-    position: relative;
-}
-
-input {
-    box-sizing: border-box;
+.messages-box {
+    display: none;
+    /* grid-column: 1 / 3;
     width: 100%;
-    position: relative;
+    color: #bfbfbf;
+    background-color: #22221E;
+    padding: 10px; */
 }
 
-.flex-container {
-    display: flex; 
-    justify-content: center;
-    flex-direction: column;
+.control-button-container {
+    display: flex;
     position:relative;
+    justify-content: space-between;
 }
 
-.message {
+/* .flex-container {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+} */
+
+.control-button {
+    height: 30px;
+    width: 30%;
+    position: relative;
+    background-color: #949494;
+    border: none;
+    /* margin-bottom: 5%; */
+}
+
+.chat-button {
+    width: 100%;
+}
+
+.chat-input {
     width: 90%;
 }
 
-#main {
-    margin: auto;
-    height: 100vh;
-    width: 80vw;
-    position: relative;
+.text {
+    font-family: 'Avenir';
 }
 
-#board {
-    width: 100%;
-    padding-bottom: 100%;
-    position: relative;
-}
 
-#sidebar {
+/* input {
+    box-sizing: border-box;
     width: 100%;
-    height: 40%;
-}
+    position: relative;
+} */
+
 
 #chat {
     height: 70%;
     width: 100%;
     margin-bottom: 10px;
     margin-top: 10px;
-    background-color: white;
+    /* background-color: white; */
     position: relative;
-    background-color: #d6bae6;
+    background-color: #22221E;
+    border-radius: 10px;
+    padding: 20px;
 }
 
 #textbox {
     height: 10%;
 }
 
-#buttons {
+#control-buttons {
     flex-direction: row;
     justify-content: space-between;
     flex-wrap: wrap;
 }
 
-@media only screen and (orientation: landscape) {
+@media only screen and (min-width: 1000px) {
+    h1 {
+        margin: 20px auto 50px;
+    }
+
+    .main {
+        display: flex;
+        justify-content: space-around;
+        width: 1000px;
+        margin: 0 auto;
+    }
+
+    .square {
+        /* width: 60%;
+        height: 0;
+        padding-bottom: 60%; */
+        width: 500px;
+        height: 500px;
+    }
+
+    canvas {
+        width: 500px;
+    }
+
+    .grid {
+        width: 250px;
+        height: 500px;
+        display: grid;
+        margin: 0px auto;
+        grid-template-columns: 100%;
+        grid-template-rows: 9fr 1fr;
+    }
+    
+    .messages-box {
+        display: block;
+        width: 100%;
+        height: 450px;
+        color: #bfbfbf;
+        background-color: #22221E;
+
+    }
+
+    .messages {
+        padding: 10px;
+        height: 390px;
+    }
+
+    .chat-input {
+        width: 67%;
+        height: 26px;
+        float: left;
+        margin-left: 10px;
+    }
+    
+    .chat-button {
+        width: 20%;
+        height: 26px;
+        float: right;
+        margin-right: 10px;
+    }
+
+    .control-button-container {
+        display: flex;
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        
+    }
+    
+    .control-button {
+        align-self: center;
+    }
+    
+
+}
+
+/* @media only screen and (orientation: landscape) {
     #main {
         flex-direction: row;
         height: 100vh;
@@ -105,12 +221,10 @@ input {
         height: 50vw;
     }
 
-    #chat {
+    /* #chat {
 
     }
     
     #buttons {
 
-    }
-}
-
+    } */

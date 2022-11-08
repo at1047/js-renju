@@ -1,33 +1,34 @@
 <!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <html>
 <head>
 	<link rel="stylesheet" href="css/style.css" />
 	<title>Renju App</title>
 </head>
 <body>
-    <div id="main" class="flex-container">
-        <div id="board">
+    <h1>Renju Board Game</h1>
+    <div class="main">
+        <div class="square">
             <canvas></canvas>
         </div>
-        <div id="sidebar">
-            <table id="chat">
-                <tr class="message">
-                    <td><p class="text">Welcome to Renju</p></td>
-                </tr>
-                <tr id="textbox">
-                    <td id="form"><input class="text" type="text"></input></td>
-                    <td id="submit"><input class="text" type="submit"></input></td>
-                </tr>
-            </table>
-            <div id="buttons" class="flex-container">
-                <button class="text" id="restart"></button>
-                <button class="text" id="undo"></button>
-                <button class="text" id="hurryUp"></button>
-                <button></button>
-                <button></button>
-                <button></button>
+
+        <div class="grid">
+            <div class="messages-box text">
+                <div class="messages">
+                    <p>Welcome to Renju</p>
+                </div>
+                <input class="chat-input" type="text"></input>
+                <button class="text chat-button">Send</button>
+            </div>
+
+            <div class="control-button-container">
+                <button class="text control-button" id="restart">Restart</button>
+                <button class="text control-button" id="undo">Undo</button>
+                <button class="text control-button" id="hurryUp">Hurry up!</button>
             </div>
         </div>
+
     </div>
     <script src="/socket.io/socket.io.js"></script>	
 	<script src="js/renju.js"></script>
