@@ -2,6 +2,7 @@
     padding: 0;
     margin: 0;
     border: 0;
+    box-sizing: border-box;
 }
 
 html {
@@ -18,6 +19,12 @@ h1 {
 button {
     border-radius: 0 !important;
 }
+
+ul {
+    list-style-type: none;
+}
+
+
 
 .main {
     width: 100%
@@ -167,15 +174,46 @@ canvas {
     }
 
     .messages {
-        padding: 10px;
-        height: 390px;
+        height: 410px;
     }
+
+    ul {
+        overflow: auto;
+        flex-direction: column;
+    }
+
+    li {
+        padding: 5px 10px;
+        display:block;
+        width: 100%;
+    }
+
+    #messages > li:nth-child(odd) { background: #3C3A37; }
+
+    lh {
+        position: absolute;
+        padding: 5px 10px;
+        background: #524e49;
+        display:block;
+        width: 250px;
+        height: 33.45px;
+        font-family: "Avenir Black";
+        font-size: 20px;
+        text-align: center;
+    }
+
+    span {
+        display: inline-block;
+        vertical-align: middle;
+        line-height: normal;
+      }
 
     .chat-input {
         width: 67%;
         height: 26px;
         float: left;
         margin-left: 10px;
+        margin-top: 7px;
     }
     
     .chat-button {
@@ -183,6 +221,7 @@ canvas {
         height: 26px;
         float: right;
         margin-right: 10px;
+        margin-top: 7px;
     }
 
     .control-button-container {

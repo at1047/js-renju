@@ -15,11 +15,15 @@
 
         <div class="grid">
             <div class="messages-box text">
-                <div class="messages">
-                    <p>Welcome to Renju</p>
-                </div>
-                <input class="chat-input" type="text"></input>
-                <button class="text chat-button">Send</button>
+                <ul id="messages" class="messages">
+                    <lh><span>Chat</span></lh>
+                    <li>Welcome to Renju</li>
+                </ul>
+
+                <form id="form">
+                    <input id="input" class="chat-input" type="text" autocomplete="off"></input>
+                    <button id="chatButton" class="text chat-button">Send</button>
+                </form>
             </div>
 
             <div class="control-button-container">
@@ -30,7 +34,9 @@
         </div>
 
     </div>
-    <script src="/socket.io/socket.io.js"></script>	
+	
+    <script src="/socket.io/socket.io.js"></script> <!-- USE THIS IN TESTING -->
+    <!-- <script src="/renju/socket.io/socket.io.js"></script> --> <!-- USE THIS IN DEPLOYMENT -->
 	<script src="js/renju.js"></script>
 </body>
 </html>

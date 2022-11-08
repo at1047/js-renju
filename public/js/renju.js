@@ -2,10 +2,17 @@
 
 var canvas = document.querySelector('canvas');
 const socket = io();
+// const socket = io('https://andrew-tai.com', {path: '/renju/socket.io'}); // USE THIS IN DEPLOYMENT
 
 document.getElementById("restart").onclick = restart;
 document.getElementById("undo").onclick = undo;
 document.getElementById("hurryUp").onclick = hurryUp;
+document.getElementById("chatButton").onclick = chatButton;
+var messages = document.getElementById('messages');
+var input = document.getElementById('input');
+var form = document.getElementById('form');
+
+
 
 var ctx = canvas.getContext('2d');
 const boardSize = 19;
@@ -57,6 +64,13 @@ socket.on('reject', () => {
     window.location.href = '/';
 })
 
+socket.on('chatMessage', function(msg) {
+    var item = document.createElement('li');
+    item.textContent = msg;
+    messages.appendChild(item);
+    item.scrollIntoView();
+});
+
 // Socket functions from Client
 
 function getName() {
@@ -74,12 +88,23 @@ function undo() {
 }
 
 function hurryUp() {
-    socket.emit('hurryUp');
+    console.log("emit hurry up");
+
 }
 
 function emitMove([x,y]) {
     socket.emit('clientMove', [x,y]);
 }
+
+form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    // socket.emit('reemit', input)
+    if (input.value) {
+        
+        socket.emit('chatMessage', input.value);
+        input.value = '';
+    }
+});
 
 // Game functions
 

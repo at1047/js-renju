@@ -83,7 +83,9 @@ io.on('connection', socket => {
 
         socket.on('hurryUp', () => {
             console.log(players[myTurn]['userName'] + " said hurry up!");
-            socket.broadcast.emit('alert', info['userName'] + ' said please hurry up');
+            const opp = players[myTurn]['userName'];
+            socket.broadcast.emit('alert', opp + ' said please hurry up');
+
         });
 
         socket.on('restart', () => {
@@ -94,9 +96,19 @@ io.on('connection', socket => {
 
         socket.on('undo', () => {
             console.log(players[myTurn]['userName'] + " requested to undo");
-            undo(myTurn);
+            undo(myTurn, socket);
             io.emit('dict', dict);
         });
+
+        socket.on('chatMessage', (msg) => {
+            socket.emit('message', 'chatMessage');
+            console.log('message: ' + msg);
+            io.emit('chatMessage', msg);
+        });
+
+        socket.on('reemit', (msg) => {
+            socket.emit('message', msg);
+        })
 
         socket.once('disconnect', () => {
             players[myTurn] = {
@@ -170,7 +182,7 @@ function initBoard() {
     return dict;
 }
 
-function undo(myTurn) {
+function undo(myTurn, socket) {
     if (playOrder.length > 0) {
         console.log(players);
         console.log(myTurn);
@@ -185,6 +197,8 @@ function undo(myTurn) {
                 'y': lastPiece['y']
             });
             nextTurn();
+        } else {
+            socket.emit('alert', "Your opponent already made a move! :'(");
         }
     }
 }
