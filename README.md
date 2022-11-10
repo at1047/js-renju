@@ -1,4 +1,4 @@
-# renju-app-nodejs
+# nodejs-renju
 Renju two-player online game built using Socket.io and Nodejs
 
 # TODO
