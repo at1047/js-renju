@@ -16,7 +16,7 @@
     "express": "^4.17.1",
     "mongodb": "^3.6.0",
     "pg": "^8.3.0",
-    "sequelize": "^6.3.4",
+    "sequelize": "^6.29.0",
     "socket.io": "^2.3.0"
   }
 }
